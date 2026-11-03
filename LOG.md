@@ -7,7 +7,8 @@ Create the database: CREATE DATABASE practice;
 \q             -- quits psql
 
 
-'''\n
+'''
+
 postgres=# CREATE DATABASE practice;
 CREATE DATABASE
 postgres=# \l
@@ -27,4 +28,5 @@ postgres=# \c practice
 You are now connected to database "practice" as user "postgres".
 practice=# \q
 Press any key to continue . . .
-\n'''
+
+'''
