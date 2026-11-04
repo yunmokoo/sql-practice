@@ -30,3 +30,7 @@ You are now connected to database "practice" as user "postgres".
 practice=# \q
 Press any key to continue . . .
 ```
+
+`\dt` gives a list of tables
+
+`\d <tableName>` shows data of 'tableName'.
