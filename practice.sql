@@ -107,3 +107,58 @@ SELECT w1.city, w1.temp_lo AS low, w1.temp_hi AS high,
 -- 'FROM weather w1 JOIN weather w2' conceptually gives 3*3 = 9 rows
 -- 'ON w1.temp_lo < w2.temp_lo AND w1.temp_hi > w2.temp_hi;' filters out self-pair.
 -- Surviving pair has w2’s range strictly inside w1’s range.
+
+SELECT *
+    FROM weather w JOIN cities c ON w.city = c.name;
+-- The above query is equivalent to the following query.
+SELECT *
+    FROM weather AS w JOIN cities AS c ON w.city = c.name;
+
+-- An aggregate function computes a single result from multiple input rows. 
+-- For example, there are aggregates to compute the...
+-- count, sum, avg (average), max (maximum) and min (minimum) over a set of rows.
+
+-- find the highest low-temperature reading
+SELECT max(temp_lo) FROM weather;
+-- we wanted to know what city (or cities) that reading occurred in
+SELECT city FROM weather
+    WHERE temp_lo = (SELECT max(temp_lo) FROM weather);
+-- This will NOT work. SELECT city FROM weather WHERE temp_lo = max(temp_lo);
+
+-- very useful in combination with GROUP BY clauses. For example, 
+-- we can get the number of readings and the maximum low temperature observed in each city with.
+SELECT city, count(*), max(temp_lo)
+    FROM weather
+    GROUP BY city;
+-- We can filter these grouped rows using HAVING.
+SELECT city, count(*), max(temp_lo)
+    FROM weather
+    GROUP BY city
+    HAVING max(temp_lo) < 40;
+-- gives us the same results for only the cities that have all temp_lo values below 40.
+-- Finally, if we only care about cities whose names begin with “S”, we might do:
+SELECT city, count(*), max(temp_lo)
+    FROM weather
+    WHERE city LIKE 'S%'            -- (1)
+    GROUP BY city;
+-- The LIKE operator does pattern matching.
+
+-- WHERE selects input rows before conditionals and computation.
+-- HAVING selects group rows after groups and aggregates are computed.
+
+-- Another way to select the rows that go into an aggregate computation is to use FILTER.
+SELECT city, count(*) FILTER (WHERE temp_lo < 45), max(temp_lo)
+    FROM weather
+    GROUP BY city;
+
+-- You can update existing rows using the UPDATE command.
+-- Suppose you discover the temperature readings are all off by 2 degrees after November 28. 
+-- You can correct the data as follows:
+UPDATE weather
+    SET temp_hi = temp_hi - 2,  temp_lo = temp_lo - 2
+    WHERE date > '1994-11-28';
+
+-- Rows can be removed from a table using the DELETE command.
+-- DELETE FROM <tablename>
+DELETE FROM weather WHERE city = 'Hayward';
+
