@@ -162,3 +162,13 @@ UPDATE weather
 -- DELETE FROM <tablename>
 DELETE FROM weather WHERE city = 'Hayward';
 
+-- A view is a stored query that you can reference like a table.
+-- Views are useful for encapsulating complex queries,
+-- and for providing a level of security by restricting access to a predetermined set of rows and columns.
+CREATE VIEW myview AS
+    SELECT name, temp_lo, temp_hi, prcp, date, location
+        FROM weather, cities
+        WHERE city = name;
+
+SELECT * FROM myview;
+
