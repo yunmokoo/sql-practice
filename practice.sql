@@ -172,3 +172,26 @@ CREATE VIEW myview AS
 
 SELECT * FROM myview;
 
+-- setting: There are `forecast` and `locations` tables.
+-- You want to add/update to `forecast` table with specific set of locations.
+-- You would want to use Foreign Keys. TO use them, you need a Parent table.
+-- By setting `locations` table as a parent table, you would put the set of locations in there.
+-- `forecast` table would be a child table with foreign key of `forecast.locations` referencing `locations.name`.
+   DROP VIEW myview;
+   DROP TABLE weather;
+   DROP TABLE cities;
+CREATE TABLE cities (
+        name     varchar(80) primary key,
+        location point
+);
+
+CREATE TABLE weather (
+        city      varchar(80) references cities(name),
+        temp_lo   int,
+        temp_hi   int,
+        prcp      real,
+        date      date
+);
+
+-- This fails because 'Berkeley' is not in the primary key in `cities` table.
+INSERT INTO weather VALUES ('Berkeley', 45, 53, 0.0, '1994-11-28');
