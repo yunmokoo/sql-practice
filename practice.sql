@@ -195,3 +195,41 @@ CREATE TABLE weather (
 
 -- This fails because 'Berkeley' is not in the primary key in `cities` table.
 INSERT INTO weather VALUES ('Berkeley', 45, 53, 0.0, '1994-11-28');
+
+SELECT * FROM weather;
+
+
+
+
+
+-- 3.4 Transactions
+-- setup start
+CREATE TABLE branches (
+        name    varchar(20) primary key,
+        balance int
+)
+
+CREATE TABLE accounts (
+        name    varchar(20) references branches(name),
+        balance int
+)
+
+INSERT INTO branches (name, balance)
+    VALUES ('Alice', 300), ('Bob', 200);
+INSERT INTO accounts (name, balance)
+    VALUES ('Alice', 300), ('Bob', 200);
+-- setup end
+
+-- Transactions are all or nothing.
+-- If the process is ran from `BEGIN` to `COMMIT`, the changes are kept.
+-- If any process between `BEGIN` to `COMMIT` is inturrupted, nothing changes.
+-- A group of statements surrounded by `BEGIN` and `COMMIT` is sometimes called a transaction block.
+BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+-- etc etc
+COMMIT;
+
+-- PostgreSQL treat statements without transaction wrapper like a transaction.
+-- If you do not issue a BEGIN command, then each individual statement has an implicit BEGIN and (if successful) COMMIT wrapped around it. 
+
