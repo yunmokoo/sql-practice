@@ -233,3 +233,26 @@ COMMIT;
 -- PostgreSQL treat statements without transaction wrapper like a transaction.
 -- If you do not issue a BEGIN command, then each individual statement has an implicit BEGIN and (if successful) COMMIT wrapped around it. 
 
+-- transaction can include `SAVEPOINT` that allow you to selectively discard parts of the transaction, while committing the rest.
+-- After defining a savepoint with `SAVEPOINT`, you can if needed roll back to the savepoint with `ROLLBACK TO`.
+
+-- if you are sure you won't need to roll back to a particular savepoint again, it can be released, so the system can free some resources. 
+-- Keep in mind that either releasing or rolling back to a savepoint will automatically release all savepoints that were defined after it.
+
+-- If multiple transaction blocks are running, each blocks can not see the changes within that block.
+-- transaction blocks can only see the changes from the completed run of a block.
+
+BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+SAVEPOINT my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+-- oops ... forget that and use Wally's account
+ROLLBACK TO my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Wally';
+COMMIT;
+
+SELECT * FROM accounts;
+SELECT * FROM branches;
