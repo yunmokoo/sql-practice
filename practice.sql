@@ -273,3 +273,54 @@ SELECT depname, empno, salary,
        avg(salary) OVER (PARTITION BY depname)
 FROM empsalary;
 
+-- using `ORDER BY` in window function
+SELECT depname, salary,
+       sum(salary) OVER (PARTITION BY depname ORDER BY salary)
+FROM empsalary
+WHERE depname = 'develop';
+-- the `sum(salary)` on `ORDER BY` show accumulation of salaries.
+
+-- Here’s the order PostgreSQL runs a query in:
+-- FROM → WHERE → GROUP BY → HAVING → window functions → final ORDER BY
+
+-- Task: grab top 2 salaries in each `depname`
+1  SELECT depname, empno, salary
+2  FROM (
+3      SELECT depname, empno, salary,
+4             row_number() OVER (PARTITION BY depname ORDER BY salary DESC, empno) AS pos
+5      FROM empsalary
+6  ) AS ss
+7  WHERE pos < 3;
+/*
+Task solution explanation.
+
+The key idea: there are two queries here, one inside the other. 
+PostgreSQL runs the inner one first (lines 3–5), 
+then the outer one (lines 1, 2, 6, 7) uses the inner one’s result as if it were a table.
+
+PART A:
+Line 5: FROM empsalary
+Start with all 10 rows of the table.
+
+Line 3: SELECT depname, empno, salary,
+Keep these three columns.
+
+Line 4: the window function
+`row_number()`	Gives each row a position number: 1, 2, 3…
+`OVER (`	Marks this as a window function. Everything inside the parentheses describes the window.
+`PARTITION BY depname`	Numbering restarts at 1 in each department.
+`ORDER BY salary DESC`	Within each department, the highest salary is numbered first.
+`, empno`	Tiebreaker. If two salaries are equal, the lower employee number goes first. Refer to two 5200 rows.
+`AS pos`	Names this new column pos (short for position), so the outer query can refer to it.
+
+Part B: the outer query (lines 1, 2, 6, 7)
+Lines 2 and 6: `FROM ( ... ) AS ss`
+Instead of reading from a real table, 
+the outer query reads from the inner query’s result (the 10-row table above, with pos included).
+
+`AS ss` gives that temporary result a name. `ss` stands for “subselect”; the name itself doesn’t matter.
+
+Line 7: `WHERE pos < 3`
+pos is now an ordinary column in the temporary table, 
+so WHERE can filter on it. It keeps rows where pos is 1 or 2 and drops the rest.
+*/
