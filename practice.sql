@@ -346,6 +346,7 @@ DROP TABLE urban;
 DROP TABLE rural;
 
 -- Can be simplied using inheritance.
+-- In PostgreSQL, a table can inherit from zero or more other tables.
 CREATE TABLE urban (
   name       text,
   population real,
@@ -355,3 +356,16 @@ CREATE TABLE urban (
 CREATE TABLE rural (
   state      char(2) UNIQUE NOT NULL
 ) INHERITS (cities);
+
+-- the following query finds the names of all urban, 
+-- including rural, that are located at an elevation over 500 feet:
+-- <it would if it had data in the table>
+SELECT name, elevation
+  FROM urban
+  WHERE elevation > 500;
+-- So the parent would access the child table. <fact check this>.
+
+-- This version adds `ONLY` which excludes the inheritance.
+SELECT name, elevation
+    FROM ONLY urban
+    WHERE elevation > 500;
