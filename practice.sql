@@ -324,3 +324,34 @@ Line 7: `WHERE pos < 3`
 pos is now an ordinary column in the temporary table, 
 so WHERE can filter on it. It keeps rows where pos is 1 or 2 and drops the rest.
 */
+
+-- 3.6 Inheritance
+
+-- There are two tables `urban` and `rural`
+-- both have "name" "population" and "elevation" in common.
+CREATE TABLE urban (
+  name       text,
+  population real,
+  elevation  int,    -- (in ft)
+  state      char(2)
+);
+
+CREATE TABLE rural (
+  name       text,
+  population real,
+  elevation  int     -- (in ft)
+);
+
+DROP TABLE urban;
+DROP TABLE rural;
+
+-- Can be simplied using inheritance.
+CREATE TABLE urban (
+  name       text,
+  population real,
+  elevation  int     -- (in ft)
+);
+
+CREATE TABLE rural (
+  state      char(2) UNIQUE NOT NULL
+) INHERITS (cities);
